@@ -109,7 +109,21 @@ public class Courses {
 	} else return false;
     }
     
-    // Getter "actualFields"
-    // countConflicts()
+    
+    public ClassRoom getActualCourseClass() {
+	return actualCourseClass;
+    }
+    public int getActualCourseDay() {
+	return actualCourseDay;
+    }
+    public int getActualCourseTime() {
+	return actualCourseTime;
+    }
+    
+    /** @return the number of constraint conflict this course made */
+    public int countConflicts() {
+	// NEED TO EDIT CLASSROOM
+	return -1;
+    }
     
 }

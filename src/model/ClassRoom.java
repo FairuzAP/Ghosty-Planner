@@ -74,32 +74,28 @@ public class ClassRoom {
 	openDay = o;
 	
 	BookingPlan = new TreeMap<>();
-	for(int day : openDay) {
+	for(int day=SENIN; day<=JUMAT; day++) {
 	    BookingPlan.put(day, new TreeMap<>());
+	    for(int i=7;i<18;i++) {
+		BookingPlan.get(day).put(i,1);
+	    }
+	}
+	
+	for(int day : openDay) {
 	    for(int i=startHour;i<endHour;i++) {
 		BookingPlan.get(day).put(i,0);
 	    }
 	}
-    }
-    
-    /** @return Wether or not the class is open at that day and hour */
-    public boolean isOpen(int day, int hour) {
-	if(BookingPlan.get(day)==null) return false;
-	else return (BookingPlan.get(day).get(hour)!=null);
-    }
-    
+    }    
     
     /**
      * Increment the BookingPlan for this class at that day and hour
      * If the class is closed at that time, do nothing and return false
      */
-    public boolean orderClass(int day, int startHour, int duration) {
-	if((isOpen(day,startHour))&&(isOpen(day,startHour+duration))) {
-	    for(int i=startHour;i<startHour+duration;i++) {
-		BookingPlan.get(day).put(i, BookingPlan.get(day).get(i)+1);
-	    }
-	    return true;
-	} else return false;
+    public void orderClass(int day, int startHour, int duration) {
+	for(int i=startHour;i<startHour+duration;i++) {
+	    BookingPlan.get(day).put(i, BookingPlan.get(day).get(i)+1);
+	}
     }
     
     /**
@@ -107,24 +103,49 @@ public class ClassRoom {
      * If the class is closed at that time, do nothing and return false
      * If any timePeriod to be decrement is 0, revert and return false
      */
-    public boolean removeOrder(int day, int startHour, int duration) {
-	if((isOpen(day,startHour))&&(isOpen(day,startHour+duration))) {
+    public void removeOrder(int day, int startHour, int duration) {  
+	for(int i=startHour;i<startHour+duration;i++) {
+	    BookingPlan.get(day).put(i, BookingPlan.get(day).get(i)-1);
+	}
+    }
+    
+    
+    /**
+     * Fungsi untuk menghitung total conflict Handshake 
+     * @param Kelas = Jumlah kelas pada jadwal itu
+     */
+    private int countConstraintConflict(int Kelas){
+        return Kelas*(Kelas-1)/2;
+    }
+    
+    /**
+     * Return the first index of a continuous "duration" long empty timeslot in 
+     * the paramater's "day" between startHour and endHour with less or equal
+     * conflict to "maxConflict"
+     * Jika tidak ditemukan jadwal, return -1
+     */
+    public int getBestTimeSlotDay(int day, int Start, int endHour, int duration, int maxConflict) {
+	int StartVal = -1;
+        int TimeStart = 7;
+        boolean Found = true;
+	
+	//Looping mencari jadwal yang tepat
+        while ((StartVal==-1) && (Found)){
 	    
-	    boolean check=true;
-	    for(int i=startHour;i<startHour+duration;i++) {
-		if(BookingPlan.get(day).get(i)==0) {
-		    check=false;
-		    break;
-		}
-	    }
-	    
-	    if(check) {
-		for(int i=startHour;i<startHour+duration;i++) {
-		    BookingPlan.get(day).put(i, BookingPlan.get(day).get(i)-1);
-		}
-		return true;
-	    } else return false;
-	} else return false;
+            //Kasus jika tidak ada slot yang cukup
+            if ((TimeStart+duration-1) > endHour) Found=false;
+            else {
+                int JumKonflik=0;
+		
+                for (int i=TimeStart;i<TimeStart+duration;i++){
+                    JumKonflik=JumKonflik+countConstraintConflict(BookingPlan.get(day).get(i));
+                }
+		
+                if (JumKonflik>maxConflict) TimeStart++;
+		else StartVal=TimeStart;
+            }
+        }
+        return StartVal;
     }
     
     
@@ -135,8 +156,8 @@ public class ClassRoom {
      */
     public int countConflicts() {
 	int res = 0;
-	for(int day : openDay) {
-	    for(int i=startHour;i<endHour;i++) {
+	for(int day=SENIN; day<=JUMAT; day++) {
+	    for(int i=7; i<18; i++) {
 		if(BookingPlan.get(day).get(i) > 1) {
 		    int n=BookingPlan.get(day).get(i);
 		    res+=(n*(n-1)/2);
