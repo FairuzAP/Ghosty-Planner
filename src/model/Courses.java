@@ -144,21 +144,25 @@ public class Courses {
     
     /** @return the number of constraint conflict this course made */
     public int countConflicts() {
-	return actualCourseClass.getOrderConflict(actualCourseDay, actualCourseTime, duration);
+	if(actualCourseClass!=null) return actualCourseClass.getOrderConflict(actualCourseDay, actualCourseTime, duration);
+	else return 0;
     }
     
     
     @Override
     public String toString() {
 	StringBuilder res = new StringBuilder();
-	res.append("ID : ").append(ID).append("\n");
+	res.append("\nID : ").append(ID).append("; ");
 	res.append("name : ").append(name).append("\n");
 	res.append("allowedClass : ").append(allowedClass.toString()).append("\n");
-	res.append("startHour : ").append(startHour).append("\n");
-	res.append("endHour : ").append(endHour).append("\n");
+	res.append("startHour : ").append(startHour).append("; ");
+	res.append("endHour : ").append(endHour).append("; ");
 	res.append("duration : ").append(duration).append("\n");
 	res.append("openDay : ").append(openDay.toString()).append("\n");
-	res.append("actualCourseClass : ").append(actualCourseClass.ID).append("\n");
+	res.append("actualCourseClass : ");
+	if(actualCourseClass!=null) res.append(actualCourseClass.ID);
+	else res.append(-1);
+	res.append("\n");
 	res.append("actualCourseDay : ").append(actualCourseDay).append("\n");
 	res.append("actualCourseTime : ").append(actualCourseTime).append("\n");
 	return res.toString();

@@ -217,9 +217,9 @@ public class ClassRoom {
     @Override
     public String toString() {
 	StringBuilder res = new StringBuilder();
-	res.append("ID : ").append(ID).append("\n");
+	res.append("\nID : ").append(ID).append("; ");
 	res.append("name : ").append(name).append("\n");
-	res.append("startHour : ").append(startHour).append("\n");
+	res.append("startHour : ").append(startHour).append("; ");
 	res.append("endHour : ").append(endHour).append("\n");
 	res.append("openDay : ").append(openDay.toString()).append("\n");
 	for(int day=SENIN; day<=JUMAT; day++) {

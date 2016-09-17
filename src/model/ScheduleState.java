@@ -5,7 +5,6 @@
  */
 package model;
 
-import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
@@ -16,10 +15,10 @@ import java.util.Vector;
 public class ScheduleState {
     
     /** All the room that is available in the schedule */
-    private final List<ClassRoom> availableRoom;
+    private final Vector<ClassRoom> availableRoom;
     
     /** All the course that must be scheduled */
-    private final List<Courses> courseList;
+    private final Vector<Courses> courseList;
     
     
     /** Ctor, initialize array */
@@ -53,7 +52,7 @@ public class ScheduleState {
     
     /** @return true if the argument is valid and the class is added, false if not */
     public boolean addClass(String className, int startHour, int endHour, Vector<Integer> openDayList){
-	if((className.isEmpty())||(startHour<6)||(endHour>17)||(startHour>endHour)||(openDayList.isEmpty())) 
+	if((className.isEmpty())||(startHour<6)||(endHour>18)||(startHour>endHour)||(openDayList.isEmpty())) 
 	    return false;
 	else {
 	    availableRoom.add(new ClassRoom(className, startHour, endHour, openDayList));
@@ -63,7 +62,7 @@ public class ScheduleState {
     
     /** @return true if the argument is valid and the class is added, false if not */
     public boolean addCourse(String courseName, Vector<Integer> allowedClassID, int startHour, int endHour, int duration, Vector<Integer> openDayList){
-	if((courseName.isEmpty())||(startHour<6)||(endHour>17)||(startHour>endHour)||(openDayList.isEmpty())||(duration<1)||(duration>11)) 
+	if((courseName.isEmpty())||(startHour<6)||(endHour>18)||(startHour>endHour)||(openDayList.isEmpty())||(duration<1)||(duration>11)) 
 	    return false;
 	else {
 	    
@@ -87,12 +86,13 @@ public class ScheduleState {
      * Assign schedule to each classes randomly 
      */
     public void initialize() {
+	Random r = new Random();
+	r.setSeed(System.currentTimeMillis());
 	for(Courses c : courseList) {
-	    Random r = new Random();
 	    
 	    int classID = c.allowedClass.get(r.nextInt(c.allowedClass.size()));
 	    int startDay = c.openDay.get(r.nextInt(c.openDay.size()));
-	    int startHour = c.startHour + r.nextInt((c.endHour-c.startHour)-c.duration);
+	    int startHour = c.startHour + r.nextInt(1+(c.endHour-c.startHour)-c.duration);
 	    
 	    orderClass(c.ID,classID,startDay,startHour);
 	}
@@ -127,5 +127,17 @@ public class ScheduleState {
 	    sum+=c.countConflicts();
 	}
 	return sum;
+    }
+    
+    
+    @Override
+    public String toString() {
+	StringBuilder res = new StringBuilder();
+	res.append("Class List :\n");
+	res.append(availableRoom.toString());
+	res.append("\nCourse List :\n");
+	res.append(courseList.toString());
+	res.append("\n");
+	return res.toString();
     }
 }

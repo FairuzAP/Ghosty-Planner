@@ -6,7 +6,7 @@
 package ghosty.planner;
 
 import java.util.Vector;
-import model.ClassRoom;
+import model.ScheduleState;
 
 /**
  *
@@ -18,19 +18,32 @@ public class GhostyPlanner {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-	Vector<Integer> temp = new Vector();
-	temp.add(0);temp.add(1);temp.add(2);temp.add(3);temp.add(4);
-	ClassRoom c = new ClassRoom("7606", 7, 12, temp);
-	System.out.print(c);
 	
-	c.orderClass(0, 12, 3);
-	c.orderClass(2, 10, 4);
-	c.orderClass(0, 11, 2);
-	System.out.print(c);
+	ScheduleState s = new ScheduleState();
 	
-	System.out.print(c.countConflicts());
+	Vector<Integer> day1 = new Vector();
+	day1.add(0);day1.add(1);day1.add(2);day1.add(3);day1.add(4);
+	s.addClass("7606", 7, 12, day1); 
+	day1.remove(3);
+	s.addClass("7602", 9, 15, day1);
+	day1.remove(0);
+	s.addClass("9123", 7, 18, day1);
 	
+	Vector<Integer> day2 = new Vector();
+	day2.add(0);day2.add(1);day2.add(2);day2.add(3);day2.add(4);
+	Vector<Integer> class1 = new Vector();
+	s.addCourse("IF2112", class1, 9, 14, 2, day2);
+	s.addCourse("IF2113", class1, 9, 14, 2, day2);
+	class1.add(2);
+	s.addCourse("IF3412", class1, 7, 12, 3, day2);
+	s.addCourse("IF3413", class1, 7, 12, 3, day2);
+	day2.remove(0); class1.add(1);
+	s.addCourse("IF1234", class1, 12, 18, 4, day2);
+	s.addCourse("IF1235", class1, 12, 18, 4, day2);
 	
+	s.initialize();
+	System.out.println(s);
+	System.out.print(s.countConflicts());
     }
     
 }
