@@ -86,6 +86,28 @@ public class Courses {
     }
     
     /**
+     * CCTOR, doesn't bind the three 'actual' fields; 
+     * use the same ID as the paramater, doesn't increment courseMade
+     */
+    public Courses(Courses c) {
+	
+	ID = c.ID;
+	name = c.name;
+	
+	allowedClass = new Vector<>(c.allowedClass);
+	
+	startHour = c.startHour;
+	endHour = c.endHour;
+	duration = c.duration;
+	openDay = new Vector<>(c.openDay);
+	
+	actualCourseClass = null;
+	actualCourseDay = -1;
+	actualCourseTime = -1;
+    }
+    
+    
+    /**
      * @return Wether or not the class can happen at that Class during that Day 
      * and that Time; ignore wether or not the class can support it
      */
@@ -122,8 +144,24 @@ public class Courses {
     
     /** @return the number of constraint conflict this course made */
     public int countConflicts() {
-	// NEED TO EDIT CLASSROOM
-	return -1;
+	return actualCourseClass.getOrderConflict(actualCourseDay, actualCourseTime, duration);
+    }
+    
+    
+    @Override
+    public String toString() {
+	StringBuilder res = new StringBuilder();
+	res.append("ID : ").append(ID).append("\n");
+	res.append("name : ").append(name).append("\n");
+	res.append("allowedClass : ").append(allowedClass.toString()).append("\n");
+	res.append("startHour : ").append(startHour).append("\n");
+	res.append("endHour : ").append(endHour).append("\n");
+	res.append("duration : ").append(duration).append("\n");
+	res.append("openDay : ").append(openDay.toString()).append("\n");
+	res.append("actualCourseClass : ").append(actualCourseClass.ID).append("\n");
+	res.append("actualCourseDay : ").append(actualCourseDay).append("\n");
+	res.append("actualCourseTime : ").append(actualCourseTime).append("\n");
+	return res.toString();
     }
     
 }

@@ -28,6 +28,29 @@ public class ScheduleState {
 	courseList = new Vector<>();
     }
     
+    /** Ctor, initialize array */
+    public ScheduleState(ScheduleState s) {
+	availableRoom = new Vector<>();
+	courseList = new Vector<>();
+	
+	for(ClassRoom c : s.availableRoom) {
+	    availableRoom.add(new ClassRoom(c));
+	}
+	for(Courses c : s.courseList) {
+	    Courses temp = new Courses(c);
+	    temp.setClass(c.getActualCourseClass(), c.getActualCourseDay(), c.getActualCourseTime());
+	    courseList.add(temp);
+	}
+    }
+    
+    
+    private boolean orderClass(int CourseID, int ClassID, int startDay, int startHour) {
+	if(courseList.get(CourseID-1).setClass(availableRoom.get(ClassID-1), startDay, startHour)) {
+	    availableRoom.get(ClassID-1).orderClass(startDay, startHour, courseList.get(CourseID-1).duration);
+	    return true;
+	} else return false;
+    }
+    
     /** @return true if the argument is valid and the class is added, false if not */
     public boolean addClass(String className, int startHour, int endHour, Vector<Integer> openDayList){
 	if((className.isEmpty())||(startHour<6)||(endHour>17)||(startHour>endHour)||(openDayList.isEmpty())) 
@@ -60,15 +83,6 @@ public class ScheduleState {
 	}
     }
     
-    /** @return The number of constraint conflict in classess */
-    public int countConflicts() {
-	int sum = 0;
-	for(ClassRoom c : availableRoom) {
-	    sum+=c.countConflicts();
-	}
-	return sum;
-    }
-    
     /**
      * Assign schedule to each classes randomly 
      */
@@ -77,14 +91,13 @@ public class ScheduleState {
 	    Random r = new Random();
 	    
 	    int classID = c.allowedClass.get(r.nextInt(c.allowedClass.size()));
-	    ClassRoom sClass = availableRoom.get(classID-1);
-	    int startDay = r.nextInt(5);
-	    int startHour = 7 + r.nextInt(11-c.duration);
+	    int startDay = c.openDay.get(r.nextInt(c.openDay.size()));
+	    int startHour = c.startHour + r.nextInt((c.endHour-c.startHour)-c.duration);
 	    
-	    c.setClass(sClass, startDay, startHour);
-	    sClass.orderClass(startDay, startHour, c.duration);
+	    orderClass(c.ID,classID,startDay,startHour);
 	}
     }
+    
     
     /**
      * Change this state to a best posible state by moving one courses schedule
@@ -97,11 +110,22 @@ public class ScheduleState {
     }
     
     /**
+     * MAY NEED OPTIMIZATION ?
      * @return another state by moving one courses schedule to a different time 
      * period randomly from this state
      */
     public ScheduleState generateRandomChildState() {
+	
 	return null;
     }
     
+    
+    /** @return The number of constraint conflict in classess */
+    public int countConflicts() {
+	int sum = 0;
+	for(ClassRoom c : availableRoom) {
+	    sum+=c.countConflicts();
+	}
+	return sum;
+    }
 }
