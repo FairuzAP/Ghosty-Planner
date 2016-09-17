@@ -73,12 +73,12 @@ public class Courses {
 	if(a.isEmpty()) {
 	    allowedClass = new Vector<>();
 	    for(int i=1; i<=ClassRoom.classMade; i++) allowedClass.add(i);
-	} else allowedClass = a;
+	} else allowedClass = new Vector<>(a);
 	
 	startHour = s;
 	endHour = e;
 	duration = d;
-	openDay = o;
+	openDay = new Vector<>(o);
 	
 	actualCourseClass = null;
 	actualCourseDay = -1;
@@ -86,12 +86,36 @@ public class Courses {
     }
     
     /**
+     * CCTOR, doesn't bind the three 'actual' fields; 
+     * use the same ID as the paramater, doesn't increment courseMade
+     */
+    public Courses(Courses c) {
+	
+	ID = c.ID;
+	name = c.name;
+	
+	allowedClass = new Vector<>(c.allowedClass);
+	
+	startHour = c.startHour;
+	endHour = c.endHour;
+	duration = c.duration;
+	openDay = new Vector<>(c.openDay);
+	
+	actualCourseClass = null;
+	actualCourseDay = -1;
+	actualCourseTime = -1;
+    }
+    
+    
+    /**
      * @return Wether or not the class can happen at that Class during that Day 
      * and that Time; ignore wether or not the class can support it
      */
     public boolean isValid(ClassRoom Class, int Day, int Time) {
-	if(!allowedClass.contains(Class.ID)) return false;
-	else if(!openDay.contains(Day)) return false;
+	if(Class!=null) { 
+	    if(!allowedClass.contains(Class.ID)) return false;
+	} 
+	if(!openDay.contains(Day)) return false;
 	else return !((Time < startHour)||(Time > endHour));
     }
     
@@ -122,8 +146,28 @@ public class Courses {
     
     /** @return the number of constraint conflict this course made */
     public int countConflicts() {
-	// NEED TO EDIT CLASSROOM
-	return -1;
+	if(actualCourseClass!=null) return actualCourseClass.getOrderConflict(actualCourseDay, actualCourseTime, duration);
+	else return 0;
+    }
+    
+    
+    @Override
+    public String toString() {
+	StringBuilder res = new StringBuilder();
+	res.append("\nID : ").append(ID).append("; ");
+	res.append("name : ").append(name).append("\n");
+	res.append("allowedClass : ").append(allowedClass.toString()).append("\n");
+	res.append("startHour : ").append(startHour).append("; ");
+	res.append("endHour : ").append(endHour).append("; ");
+	res.append("duration : ").append(duration).append("\n");
+	res.append("openDay : ").append(openDay.toString()).append("\n");
+	res.append("actualCourseClass : ");
+	if(actualCourseClass!=null) res.append(actualCourseClass.ID);
+	else res.append(-1);
+	res.append("\n");
+	res.append("actualCourseDay : ").append(actualCourseDay).append("\n");
+	res.append("actualCourseTime : ").append(actualCourseTime).append("\n");
+	return res.toString();
     }
     
 }
