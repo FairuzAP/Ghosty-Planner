@@ -46,38 +46,7 @@ public class GhostyPlanner {
 	s.generateBestChildState();
 	System.out.println(s);
 	System.out.println(s.countConflicts());
+	
     }
     
 }
-
-/*
-Vector<Vector<Integer>> ListJadwal=new Vector<>();
-        Vector<Integer> ListDay=new Vector<>();
-	
-        //Loop untuk mencari jadwal terbaik setiap day yang terbuka
-        for(int day:c.openDay){
-            Vector<Integer> Temporary=new Vector<>();
-            Temporary=c.getActualCourseClass().getBestTimeSlotDay(day, c.startHour, c.endHour, c.duration);
-            ListJadwal.add(Temporary);
-            ListDay.add(day);
-        }
-        
-        // Re-assign it's schedule 
-	int classID = c.ID;
-	int startDay = ListDay.get(0);
-	int startHour = ListJadwal.get(0).get(0);
-        int Konflik = ListJadwal.get(0).get(1);
-	
-        //looping untuk membandingkan jadwal semua hari
-        for (int i=1;i<ListJadwal.size();i++){
-            // Jika hari lain konflik lebih sedikit
-            if (Konflik>ListJadwal.get(i).get(1)){
-                startDay = ListDay.get(i);
-                startHour = ListJadwal.get(i).get(0);
-                Konflik = ListJadwal.get(i).get(1);
-            }
-        }
-	
-        // Di sini, startDay,startHour,Konflik memiliki jumlah konflik tersedikit
-        this.orderClass(c.ID,c.getActualCourseClass().ID,startDay,startHour);
-*/

@@ -177,11 +177,12 @@ public class ClassRoom {
         boolean Found = false;
 	
 	// Looping mencari jadwal yang tepat
-        while ((TimeStart+duration<endHour) && (!Found)){
+        while ((TimeStart+duration-1<endHour) && (!Found)){
             int KonflikCounter=0;
             for (int i=TimeStart;i<TimeStart+duration;i++){
-                KonflikCounter=KonflikCounter+countConstraintConflict(BookingPlan.get(day).get(i));
+                KonflikCounter=KonflikCounter+countConstraintConflict(BookingPlan.get(day).get(i)+1);
             }
+            //KonflikCounter berisi jumlah total konflik yang terjadi
             if (KonflikCounter==0){
                 //Kasus jika 0 Conflict
                 RetVal.removeAllElements();
@@ -193,6 +194,7 @@ public class ClassRoom {
             if (TimeStart==Start)
             {
                 //Kasus jika merupakan iterasi pertama dan konflik!=0
+                RetVal.removeAllElements();
                 RetVal.add(TimeStart);
                 RetVal.add(KonflikCounter);
                 TimeStart++;
