@@ -45,7 +45,8 @@ public class ScheduleState {
     
     
     private boolean orderClass(int CourseID, int ClassID, int startDay, int startHour) {
-	if(courseList.get(CourseID-1).setClass(availableRoom.get(ClassID-1), startDay, startHour)) {
+	boolean res = courseList.get(CourseID-1).setClass(availableRoom.get(ClassID-1), startDay, startHour);
+	if(res) {
 	    availableRoom.get(ClassID-1).orderClass(startDay, startHour, courseList.get(CourseID-1).duration);
 	    return true;
 	} else return false;
@@ -115,35 +116,52 @@ public class ScheduleState {
 	
 	// Remove it's old schedule from the class
 	c.getActualCourseClass().removeOrder(c.getActualCourseDay(), c.getActualCourseTime(), c.duration);
-        Vector<Vector<Integer>> ListJadwal=new Vector<Vector<Integer>>();
-        Vector<Integer> ListDay=new Vector<>();
 	
-        //Loop untuk mencari jadwal terbaik setiap day yang terbuka
-        for(int day:c.openDay){
-            Vector<Integer> Temporary=new Vector<>();
-            Temporary=c.getActualCourseClass().getBestTimeSlotDay(day, c.startHour, c.endHour, c.duration);
-            ListJadwal.add(Temporary);
-            ListDay.add(day);
-        }
-        
-        // Re-assign it's schedule 
-	int classID = c.ID;
-	int startDay = ListDay.get(0);
-	int startHour = ListJadwal.get(0).get(0);
-        int Konflik = ListJadwal.get(0).get(1);
+	// The vector to contain the best possible schedule placement for this
+	// course. [0]=time,[1]=conflicts number,[2]=day,[3]=classID
+	Vector<Integer> bestSchedule = null;
 	
-        //looping untuk membandingkan jadwal semua hari
-        for (int i=1;i<ListJadwal.size();i++){
-            // Jika hari lain konflik lebih sedikit
-            if (Konflik>ListJadwal.get(i).get(1)){
-                startDay = ListDay.get(i);
-                startHour = ListJadwal.get(i).get(0);
-                Konflik = ListJadwal.get(i).get(1);
-            }
-        }
+	for(int classID : c.allowedClass) {
+
+	    ClassRoom CClass = availableRoom.get(classID-1);
+	    
+	    // The vector to contain the best possible schedule placement for this
+	    // course in CClass. [0]=time,[1]=conflicts number,[2]=day
+	    Vector<Integer> bestScheduleForCClass = null;
+	    
+	    for(int day : c.openDay) {
+		Vector<Integer> temp = CClass.getBestTimeSlotDay(day, c.startHour, c.endHour, c.duration);
+		if(bestScheduleForCClass == null) {
+		    bestScheduleForCClass = new Vector<>();
+		    bestScheduleForCClass.add(temp.get(0));
+		    bestScheduleForCClass.add(temp.get(1));
+		    bestScheduleForCClass.add(day);
+		} else if(bestScheduleForCClass.get(1) > temp.get(1)) {
+		    bestScheduleForCClass.set(0,temp.get(0));
+		    bestScheduleForCClass.set(1,temp.get(1));
+		    bestScheduleForCClass.set(2,day);
+		}
+		
+		if(bestScheduleForCClass.get(1)==0) break;
+	    }
+	    
+	    if(bestSchedule == null) {
+		bestSchedule = new Vector<>();
+		bestSchedule.add(bestScheduleForCClass.get(0));
+		bestSchedule.add(bestScheduleForCClass.get(1));
+		bestSchedule.add(bestScheduleForCClass.get(2));
+		bestSchedule.add(CClass.ID);
+	    } else if(bestSchedule.get(1) > bestScheduleForCClass.get(1)) {
+		bestSchedule.set(0,bestScheduleForCClass.get(0));
+		bestSchedule.set(1,bestScheduleForCClass.get(1));
+		bestSchedule.set(2,bestScheduleForCClass.get(2));
+		bestSchedule.set(3,CClass.ID);
+	    }
+	    
+	    if(bestSchedule.get(1)==0) break;
+	}
 	
-        // Di sini, startDay,startHour,Konflik memiliki jumlah konflik tersedikit
-        this.orderClass(c.ID,c.getActualCourseClass().ID,startDay,startHour);
+	orderClass(c.ID, bestSchedule.get(3), bestSchedule.get(2), bestSchedule.get(0));
     }
     
     /**
