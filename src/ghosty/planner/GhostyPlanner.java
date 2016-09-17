@@ -43,7 +43,8 @@ public class GhostyPlanner {
 	
 	s.initialize();
 	System.out.println(s);
-	System.out.print(s.countConflicts());
+	System.out.println(s.generateRandomChildState());
+	
     }
     
 }

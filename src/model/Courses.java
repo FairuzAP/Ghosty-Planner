@@ -112,8 +112,10 @@ public class Courses {
      * and that Time; ignore wether or not the class can support it
      */
     public boolean isValid(ClassRoom Class, int Day, int Time) {
-	if(!allowedClass.contains(Class.ID)) return false;
-	else if(!openDay.contains(Day)) return false;
+	if(Class!=null) { 
+	    if(!allowedClass.contains(Class.ID)) return false;
+	} 
+	if(!openDay.contains(Day)) return false;
 	else return !((Time < startHour)||(Time > endHour));
     }
     

@@ -37,7 +37,8 @@ public class ScheduleState {
 	}
 	for(Courses c : s.courseList) {
 	    Courses temp = new Courses(c);
-	    temp.setClass(c.getActualCourseClass(), c.getActualCourseDay(), c.getActualCourseTime());
+	    ClassRoom cl = availableRoom.get(c.getActualCourseClass().ID-1);
+	    temp.setClass(cl, c.getActualCourseDay(), c.getActualCourseTime());
 	    courseList.add(temp);
 	}
     }
@@ -115,8 +116,23 @@ public class ScheduleState {
      * period randomly from this state
      */
     public ScheduleState generateRandomChildState() {
+	Random r = new Random();
+	r.setSeed(System.currentTimeMillis());
+	ScheduleState s = new ScheduleState(this);
 	
-	return null;
+	// Pick a course ro be re-assigned
+	Courses c = s.courseList.get(r.nextInt(s.courseList.size()));
+	
+	// Remove it's old schedule from the class
+	c.getActualCourseClass().removeOrder(c.getActualCourseDay(), c.getActualCourseTime(), c.duration);
+	
+	// Re-assign it's schedule randomly
+	int classID = c.allowedClass.get(r.nextInt(c.allowedClass.size()));
+	int startDay = c.openDay.get(r.nextInt(c.openDay.size()));
+	int startHour = c.startHour + r.nextInt(1+(c.endHour-c.startHour)-c.duration);
+	s.orderClass(c.ID,classID,startDay,startHour);
+	
+	return s;
     }
     
     
