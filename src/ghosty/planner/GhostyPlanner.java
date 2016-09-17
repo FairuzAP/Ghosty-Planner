@@ -18,7 +18,6 @@ public class GhostyPlanner {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-	
 	ScheduleState s = new ScheduleState();
 	
 	Vector<Integer> day1 = new Vector();
@@ -43,8 +42,14 @@ public class GhostyPlanner {
 	
 	s.initialize();
 	System.out.println(s);
-	System.out.println(s.generateRandomChildState());
-	
+	System.out.println(s.countConflicts());
+	s.generateBestChildState();
+	System.out.println(s);
+	System.out.println(s.countConflicts());
     }
     
 }
+
+/*
+
+*/

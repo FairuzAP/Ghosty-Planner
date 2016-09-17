@@ -167,31 +167,52 @@ public class ClassRoom {
      * NEED OPTIMIZATION (RETURN BEST CONFLICTS MADE BY ASSIGNMENT)
      * Return the first index of a continuous "duration" long empty timeslot in 
      * the paramater's "day" between startHour and endHour with less or equal
-     * conflict to "maxConflict"
-     * Jika tidak ditemukan jadwal, return -1
+     * Return value berupa vektor Integer berukuran 2
+     * Vektor.get(1) berupa hari, Vektor.get(2) berupa jumlah konflik
      */
-    public int getBestTimeSlotDay(int day, int Start, int endHour, int duration, int maxConflict) {
-	int StartVal = -1;
-        int TimeStart = 7;
-        boolean Found = true;
+    public Vector<Integer> getBestTimeSlotDay(int day, int Start, int endHour, int duration) {
 	
-	//Looping mencari jadwal yang tepat
-        while ((StartVal==-1) && (Found)){
-	    
-            //Kasus jika tidak ada slot yang cukup
-            if ((TimeStart+duration-1) > endHour) Found=false;
-            else {
-                int JumKonflik=0;
-		
-                for (int i=TimeStart;i<TimeStart+duration;i++){
-                    JumKonflik=JumKonflik+countConstraintConflict(BookingPlan.get(day).get(i));
+        Vector<Integer> RetVal=new Vector<>();
+        int TimeStart = Start;
+        boolean Found = false;
+	
+	// Looping mencari jadwal yang tepat
+        while ((TimeStart+duration<endHour) && (!Found)){
+            int KonflikCounter=0;
+            for (int i=TimeStart;i<TimeStart+duration;i++){
+                KonflikCounter=KonflikCounter+countConstraintConflict(BookingPlan.get(day).get(i));
+            }
+            if (KonflikCounter==0){
+                //Kasus jika 0 Conflict
+                RetVal.removeAllElements();
+                RetVal.add(TimeStart);
+                RetVal.add(0);
+                Found=true;
+            }
+            else
+            if (TimeStart==Start)
+            {
+                //Kasus jika merupakan iterasi pertama dan konflik!=0
+                RetVal.add(TimeStart);
+                RetVal.add(KonflikCounter);
+                TimeStart++;
+            }
+            else
+            {
+                //Kasus iterasi selanjutnya jika konflik!=0
+                if (RetVal.get(1)>KonflikCounter){
+                    RetVal.removeAllElements();
+                    RetVal.add(TimeStart);
+                    RetVal.add(KonflikCounter);
+                    TimeStart++;
                 }
-		
-                if (JumKonflik>maxConflict) TimeStart++;
-		else StartVal=TimeStart;
+                else
+                {
+                    TimeStart++;
+                }
             }
         }
-        return StartVal;
+        return RetVal;
     }
     
     

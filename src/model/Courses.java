@@ -73,12 +73,12 @@ public class Courses {
 	if(a.isEmpty()) {
 	    allowedClass = new Vector<>();
 	    for(int i=1; i<=ClassRoom.classMade; i++) allowedClass.add(i);
-	} else allowedClass = a;
+	} else allowedClass = new Vector<>(a);
 	
 	startHour = s;
 	endHour = e;
 	duration = d;
-	openDay = o;
+	openDay = new Vector<>(o);
 	
 	actualCourseClass = null;
 	actualCourseDay = -1;

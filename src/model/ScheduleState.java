@@ -101,13 +101,49 @@ public class ScheduleState {
     
     
     /**
-     * Change this state to a best posible state by moving one courses schedule
+     * Change this state to a best possible state by moving one courses schedule
      * to a different time period so that the conflict count decreases as much
      * as possible
      * @return The amount of conflict removed
      */
-    public int generateBestChildState() {
-	return -1;
+    public void generateBestChildState() {
+        Random r = new Random();
+	r.setSeed(System.currentTimeMillis());
+	
+	// Pick a course ro be re-assigned
+	Courses c = this.courseList.get(r.nextInt(this.courseList.size()));
+	
+	// Remove it's old schedule from the class
+	c.getActualCourseClass().removeOrder(c.getActualCourseDay(), c.getActualCourseTime(), c.duration);
+        Vector<Vector<Integer>> ListJadwal=new Vector<Vector<Integer>>();
+        Vector<Integer> ListDay=new Vector<>();
+	
+        //Loop untuk mencari jadwal terbaik setiap day yang terbuka
+        for(int day:c.openDay){
+            Vector<Integer> Temporary=new Vector<>();
+            Temporary=c.getActualCourseClass().getBestTimeSlotDay(day, c.startHour, c.endHour, c.duration);
+            ListJadwal.add(Temporary);
+            ListDay.add(day);
+        }
+        
+        // Re-assign it's schedule 
+	int classID = c.ID;
+	int startDay = ListDay.get(0);
+	int startHour = ListJadwal.get(0).get(0);
+        int Konflik = ListJadwal.get(0).get(1);
+	
+        //looping untuk membandingkan jadwal semua hari
+        for (int i=1;i<ListJadwal.size();i++){
+            // Jika hari lain konflik lebih sedikit
+            if (Konflik>ListJadwal.get(i).get(1)){
+                startDay = ListDay.get(i);
+                startHour = ListJadwal.get(i).get(0);
+                Konflik = ListJadwal.get(i).get(1);
+            }
+        }
+	
+        // Di sini, startDay,startHour,Konflik memiliki jumlah konflik tersedikit
+        this.orderClass(c.ID,c.getActualCourseClass().ID,startDay,startHour);
     }
     
     /**
