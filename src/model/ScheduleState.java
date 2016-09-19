@@ -27,7 +27,7 @@ public class ScheduleState {
 	courseList = new Vector<>();
     }
     
-    /** Ctor, initialize array */
+    /** CCTOR make an exact copy with its own objects */
     public ScheduleState(ScheduleState s) {
 	availableRoom = new Vector<>();
 	courseList = new Vector<>();
@@ -43,6 +43,12 @@ public class ScheduleState {
 	}
     }
     
+    /** Reset the content of every vector */
+    public void resetSchedule() {
+	availableRoom.removeAllElements();
+	courseList.removeAllElements();
+    } 
+    
     
     private boolean orderClass(int CourseID, int ClassID, int startDay, int startHour) {
 	boolean res = courseList.get(CourseID-1).setClass(availableRoom.get(ClassID-1), startDay, startHour);
@@ -57,7 +63,7 @@ public class ScheduleState {
 	if((className.isEmpty())||(startHour<6)||(endHour>18)||(startHour>endHour)||(openDayList.isEmpty())) 
 	    return false;
 	else {
-	    availableRoom.add(new ClassRoom(className, startHour, endHour, openDayList));
+	    availableRoom.add(new ClassRoom(availableRoom.size()+1, className, startHour, endHour, openDayList));
 	    return true;
 	}
     }
@@ -70,7 +76,7 @@ public class ScheduleState {
 	    
 	    boolean validClassID = true;
 	    for(int i : allowedClassID) {
-		if(i>ClassRoom.classMade) {
+		if(i>availableRoom.size()) {
 		    validClassID = false;
 		    break;
 		}
@@ -78,7 +84,11 @@ public class ScheduleState {
 	    
 	    if(!validClassID) return false;
 	    else {
-		courseList.add(new Courses(courseName, allowedClassID, startHour, endHour, duration, openDayList));
+		Vector<Integer> temp = new Vector<>(allowedClassID);
+		if(temp.isEmpty()) {
+		    for(int i=1; i<=availableRoom.size(); i++) temp.add(i);
+		}
+		courseList.add(new Courses(courseList.size()+1, courseName, temp, startHour, endHour, duration, openDayList));
 		return true;
 	    }
 	}
@@ -102,17 +112,12 @@ public class ScheduleState {
     
     
     /**
-     * Change this state to a best possible state by moving one courses schedule
-     * to a different time period so that the conflict count decreases as much
-     * as possible
-     * @return The amount of conflict removed
+     * Reassign the Course with CourseID to a bestt possible timeslot; the one 
+     * that couse the least Conflicts
      */
-    public void generateBestChildState() {
-        Random r = new Random();
-	r.setSeed(System.currentTimeMillis());
-	
+    public void reasignBestCourseFor(int CourseID) {
 	// Pick a course ro be re-assigned
-	Courses c = this.courseList.get(r.nextInt(this.courseList.size()));
+	Courses c = courseList.get(CourseID-1);
 	
 	// Remove it's old schedule from the class
 	c.getActualCourseClass().removeOrder(c.getActualCourseDay(), c.getActualCourseTime(), c.duration);
@@ -197,6 +202,27 @@ public class ScheduleState {
 	    sum+=c.countConflicts();
 	}
 	return sum;
+    }
+    
+    public Courses getCourse(int CourseID) {
+	return courseList.get(CourseID-1);
+    }
+    public ClassRoom getClass(int ClassID) {
+	return availableRoom.get(ClassID-1);
+    }
+    
+    public int getClassMade() {return availableRoom.size();}
+    public int getCourseMade() {return courseList.size();}
+    
+    /** Change the schedule of this class form the old one to the paramater */
+    public boolean reOrderClass(int CourseID, int ClassID, int startDay, int startHour) {
+	boolean res = courseList.get(CourseID-1).isValid(availableRoom.get(ClassID-1), startDay, startHour);
+	if(res) {
+	    Courses c = courseList.get(CourseID-1);
+	    c.getActualCourseClass().removeOrder(c.getActualCourseDay(), c.getActualCourseTime(), c.duration);
+	    orderClass(CourseID, ClassID, startDay, startHour);
+	    return true;
+	} else return false;
     }
     
     

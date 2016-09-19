@@ -39,11 +39,11 @@ public class GhostyPlanner {
 	day2.remove(0); class1.add(1);
 	s.addCourse("IF1234", class1, 12, 18, 4, day2);
 	s.addCourse("IF1235", class1, 12, 18, 4, day2);
-	
+
 	s.initialize();
 	System.out.println(s);
 	System.out.println(s.countConflicts());
-	s.generateBestChildState();
+	s.reasignBestCourseFor(5);
 	System.out.println(s);
 	System.out.println(s.countConflicts());
 	
