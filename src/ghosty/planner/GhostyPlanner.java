@@ -7,6 +7,7 @@ package ghosty.planner;
 
 import java.util.Vector;
 import model.ScheduleState;
+import controller.Solver;
 
 /**
  *
@@ -41,11 +42,18 @@ public class GhostyPlanner {
 	s.addCourse("IF1235", class1, 12, 18, 4, day2);
 
 	s.initialize();
-	System.out.println(s);
-	System.out.println(s.countConflicts());
-	s.reasignBestCourseFor(5);
-	System.out.println(s);
-	System.out.println(s.countConflicts());
+	/*System.out.println(s);
+	System.out.println(s.countConflicts());*/
+	Solver sol = new Solver(s);
+	Solver sol1 = new Solver(s);
+	//Solver sol2 = new Solver(s);
+	System.out.println(sol.getProblem());
+	System.out.println(sol.getProblem().countConflicts());
+	sol.simulatedAnnealing();
+	sol1.hillClimb();
+	//sol2.genetic();
+	System.out.println(sol.getSolution());
+	System.out.println(sol.getSolution().countConflicts());
 	
     }
     
