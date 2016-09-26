@@ -54,6 +54,8 @@ public class GhostyPlanner {
 	//sol2.genetic();
 	System.out.println(sol.getSolution());
 	System.out.println(sol.getSolution().countConflicts());
+	System.out.println(sol1.getSolution());
+	System.out.println(sol1.getSolution().countConflicts());
 	
     }
     

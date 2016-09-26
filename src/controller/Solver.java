@@ -29,18 +29,15 @@ public class Solver {
 		ScheduleState current = new ScheduleState(problem);
 		ScheduleState neighbor = new ScheduleState(current);
 		
-		do {
-			//search for better neighbor
-			for (int i = 1; i <= neighbor.getCourseMade(); i++) {
-				neighbor.reasignBestCourseFor(i);
-			}
-			
-			//check constraints
-			if (current.countConflicts() > neighbor.countConflicts()) {
-				current = new ScheduleState(neighbor);
-			}
-			//STOPS when no better neighbors
-		} while (current.countConflicts() > neighbor.countConflicts());
+		//search for better neighbor
+		for (int i = 1; i <= neighbor.getCourseMade(); i++) {
+			neighbor.reasignBestCourseFor(i);
+		}
+		
+		//check constraints
+		if (current.countConflicts() > neighbor.countConflicts()) {
+			current = new ScheduleState(neighbor);
+		}
 		
 		solution = new ScheduleState(current);
 	}
@@ -52,14 +49,16 @@ public class Solver {
 		int deltaE;
 		boolean x = false;
 		int initConstraint = current.countConflicts();
+		Random rand = new Random();
+		rand.setSeed(System.currentTimeMillis());
+		T = rand.nextInt(100);
 		
 		do {
-			Random rand = new Random();
-			rand.setSeed(System.currentTimeMillis());
-			T = rand.nextInt(100);
-			
 			//Temperature checking
-			if (T == 0) break;
+			if (T == 0) {
+				hillClimb();
+				break;
+			}
 			
 			//generate random neighbor
 			neighbor = new ScheduleState(current.generateRandomChildState());
@@ -81,6 +80,7 @@ public class Solver {
 					current = new ScheduleState(neighbor);
 				}
 			}
+			T--;
 		}
 		while (/* all neighbors are lower */x || current.countConflicts()<=initConstraint);
 		
