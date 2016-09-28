@@ -49,8 +49,8 @@ public class GhostyPlanner {
 	//Solver sol2 = new Solver(s);
 	System.out.println(sol.getProblem());
 	System.out.println(sol.getProblem().countConflicts());
-	sol.simulatedAnnealing();
-	sol1.hillClimb(100000);
+	sol.simulatedAnnealing(200,2);
+	sol1.hillClimb(1000);
 	//sol2.genetic();
 	System.out.println(sol.getSolution());
 	System.out.println(sol.getSolution().countConflicts());

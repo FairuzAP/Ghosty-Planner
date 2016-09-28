@@ -32,17 +32,17 @@ public class Solver {
 		int step = 0;
 		int courseID = 1;
 		do {
-			step++;
 			neighbor.reasignBestCourseFor(courseID);
 			
 			//check constraints
 			if (current.countConflicts() > neighbor.countConflicts()) {
 				current = new ScheduleState(neighbor);
 				courseID = 1;
+				step++;
 			}
 			else courseID++;
 		}
-		while (current.countConflicts()>0 && step<maxstep && courseID<problem.getCourseMade());//STOPS when no better neighbors
+		while (current.countConflicts()>0 && step<maxstep && courseID<=problem.getCourseMade());//STOPS when no better neighbors
 		
 		solution = new ScheduleState(current);
 	}
@@ -54,36 +54,36 @@ public class Solver {
 		int step = 0;
 		int courseID = 1;
 		do {
-			step++;
 			neighbor.reasignBestCourseFor(courseID);
 			
 			//check constraints
 			if (current.countConflicts() > neighbor.countConflicts()) {
 				current = new ScheduleState(neighbor);
 				courseID = 1;
+				step++;
 			}
 			else courseID++;
 		}
-		while (current.countConflicts()>0 && step<maxstep && courseID<problem.getCourseMade());//STOPS when no better neighbors
+		while (current.countConflicts()>0 && step<maxstep && courseID<=problem.getCourseMade());//STOPS when no better neighbors
 		
 		solution = new ScheduleState(current);
 	}
 	
-	public void simulatedAnnealing() {
+	public void simulatedAnnealing(int initTemp, int ratioTemp) {
 		ScheduleState current = new ScheduleState(problem);
 		ScheduleState neighbor = new ScheduleState();
-		int T;
-		int deltaE;
+		double T = initTemp;
+		double deltaE;
+		int maxRand = 10000;
 		boolean x = false;
 		int initConstraint = current.countConflicts();
 		Random rand = new Random();
 		rand.setSeed(System.currentTimeMillis());
-		T = rand.nextInt(100);
 		
 		do {
 			
 			//Temperature checking
-			if (T == 0) {
+			if (T <= 0) {
 				hillClimb(1000,current);
 				break;
 			}
@@ -100,15 +100,15 @@ public class Solver {
 				r.setSeed(System.currentTimeMillis());
 				
 				//n is a random number between 0 to 10001
-				int n = r.nextInt(10000)+1;
+				double n = r.nextInt(maxRand+1);
 				
 				//x is a boolean that returns "true" if n is lower than 10000*e^deltaE/T
-				x = (n - (int) (10000 * Math.pow(e,deltaE/T)) > 0);
+				x = n/maxRand - Math.pow(e,deltaE/T) >= 0;
 				if (x) {
 					current = new ScheduleState(neighbor);
 				}
 			}
-			T--;
+			T /= ratioTemp;
 		}
 		while (current.countConflicts() > 0); //STOPS when no conflicts
 		
