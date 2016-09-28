@@ -42,16 +42,13 @@ public class Solver {
 	} while (solution.countConflicts()>0 && step<maxstep && courseID<=problem.getCourseMade());//STOPS when no better neighbors
     }
 
-    public void simulatedAnnealing(double initTemp, double ratioTemp, int pass) {
+    public void simulatedAnnealing(double T, double ratioTemp, int pass, int hillclimb) {
 	
 	solution = new ScheduleState(problem);
 	ScheduleState neighbor;
 	
-	double T = initTemp;
-	double deltaE;
-	int maxRand = 10000;
-	int counter = 0;
-	
+	int maxRand = 100000;
+	double epsilon = 0.0000000001;	
 	Random rand = new Random();
 	rand.setSeed(System.currentTimeMillis());
 	
@@ -59,34 +56,41 @@ public class Solver {
 	int badhit=0;
 	int passbadhit=0;
 	
+	int counter = 0;
 	do {
-	    //Temperature checking
-	    if (T <= 0.000001) {
-		problem = new ScheduleState(solution);
-		hillClimb(1000000);
+	    
+	    // Temperature checking
+	    if (T <= epsilon) {
+		if(hillclimb > 0) {
+		    problem = new ScheduleState(solution);
+		    hillClimb(hillclimb);
+		}
 		break;
 	    }
 	    
-	    //generate random neighbor
+	    // generate random neighbor
 	    neighbor = new ScheduleState(solution.generateRandomChildState());
 	    
-	    //count deltaE
-	    deltaE = solution.countConflicts() - neighbor.countConflicts();
+	    // count deltaE
+	    double deltaE = solution.countConflicts() - neighbor.countConflicts();
 	    
-	    if (deltaE > 0) {
-		goodhit++;
+	    if (deltaE > 0) { goodhit++;
+	    
 		solution = new ScheduleState(neighbor);
-	    } else {
-		badhit++;
-		//n is a random number between 0 to 10001
+		
+	    } else { badhit++;
+		
+		// n is a random number between 0 to 10001
 		double n = rand.nextInt(maxRand+1);
 		
-		//x is a boolean that returns "true" if n is lower than 10000*e^deltaE/T
+		// x is a boolean that returns "true" if n is lower than 10000*e^deltaE/T
 		double tempa = Math.pow(e,deltaE/T);
 		double tempb = n/maxRand;
-		if (tempb >= tempa) {
+		
+		if (tempb <= tempa) { passbadhit++;
+		
 		    solution = new ScheduleState(neighbor);
-		    passbadhit++;
+		    
 		}
 	    }
 	    

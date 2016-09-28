@@ -280,26 +280,28 @@ public class GhostyPlanner {
 	s.addCourse("IF1235", class1, 12, 18, 4, day2);
 
 	s.initialize();
-        System.out.println("Initialization done");
-        MainMenu M = new MainMenu();
-        M.getJadwal(s);
-        M.setVisible(true);
-        //ScheduleView V = new ScheduleView(s);
-        //MainMenu M = new MainMenu();
-        /*
 	System.out.println(s);
 	System.out.println(s.countConflicts());
 	Solver sol1 = new Solver(s);
 
 	System.out.println(sol1.getProblem());
 	System.out.println(sol1.getProblem().countConflicts());
-	sol1.simulatedAnnealing(1000,0.99,10);
+	sol1.simulatedAnnealing(20,0.999,10,0);
 	//sol1.hillClimb(1000);
 
 	System.out.println("//////////SOLUTION//////////");
 	System.out.println(sol1.getSolution());
-	System.out.println(sol1.getSolution().countConflicts());*/
+	System.out.println(sol1.getSolution().countConflicts());
 	
     }
     
 }
+
+/*
+        System.out.println("Initialization done");
+        MainMenu M = new MainMenu();
+        M.getJadwal(s);
+        M.setVisible(true);
+        //ScheduleView V = new ScheduleView(s);
+        //MainMenu M = new MainMenu();
+*/
