@@ -25,19 +25,46 @@ public class Solver {
 		return solution;
 	}
 	
-	public void hillClimb() {
+	public void hillClimb(int maxstep) {
 		ScheduleState current = new ScheduleState(problem);
 		ScheduleState neighbor = new ScheduleState(current);
 		
-		//search for better neighbor
-		for (int i = 1; i <= neighbor.getCourseMade(); i++) {
-			neighbor.reasignBestCourseFor(i);
+		int step = 0;
+		int courseID = 1;
+		do {
+			step++;
+			neighbor.reasignBestCourseFor(courseID);
+			
+			//check constraints
+			if (current.countConflicts() > neighbor.countConflicts()) {
+				current = new ScheduleState(neighbor);
+				courseID = 1;
+			}
+			else courseID++;
 		}
+		while (current.countConflicts()>0 && step<maxstep && courseID<problem.getCourseMade());//STOPS when no better neighbors
 		
-		//check constraints
-		if (current.countConflicts() > neighbor.countConflicts()) {
-			current = new ScheduleState(neighbor);
+		solution = new ScheduleState(current);
+	}
+	
+	public void hillClimb(int maxstep, ScheduleState s) {
+		ScheduleState current = new ScheduleState(s);
+		ScheduleState neighbor = new ScheduleState(current);
+		
+		int step = 0;
+		int courseID = 1;
+		do {
+			step++;
+			neighbor.reasignBestCourseFor(courseID);
+			
+			//check constraints
+			if (current.countConflicts() > neighbor.countConflicts()) {
+				current = new ScheduleState(neighbor);
+				courseID = 1;
+			}
+			else courseID++;
 		}
+		while (current.countConflicts()>0 && step<maxstep && courseID<problem.getCourseMade());//STOPS when no better neighbors
 		
 		solution = new ScheduleState(current);
 	}
@@ -54,9 +81,10 @@ public class Solver {
 		T = rand.nextInt(100);
 		
 		do {
+			
 			//Temperature checking
 			if (T == 0) {
-				hillClimb();
+				hillClimb(1000,current);
 				break;
 			}
 			
@@ -82,7 +110,7 @@ public class Solver {
 			}
 			T--;
 		}
-		while (/* all neighbors are lower */x || current.countConflicts()<=initConstraint);
+		while (current.countConflicts() > 0); //STOPS when no conflicts
 		
 		solution = new ScheduleState(current);
 	}
