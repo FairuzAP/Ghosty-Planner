@@ -34,26 +34,27 @@ public class GhostyPlanner {
 	Vector<Integer> class1 = new Vector();
 	s.addCourse("IF2112", class1, 9, 14, 2, day2);
 	s.addCourse("IF2113", class1, 9, 14, 2, day2);
+	s.addCourse("IF2114", class1, 9, 14, 2, day2);
 	class1.add(2);
 	s.addCourse("IF3412", class1, 7, 12, 3, day2);
+	s.addCourse("IF3413", class1, 7, 12, 3, day2);
 	s.addCourse("IF3413", class1, 7, 12, 3, day2);
 	day2.remove(0); class1.add(1);
 	s.addCourse("IF1234", class1, 12, 18, 4, day2);
 	s.addCourse("IF1235", class1, 12, 18, 4, day2);
+	s.addCourse("IF1235", class1, 12, 18, 4, day2);
 
 	s.initialize();
-	/*System.out.println(s);
-	System.out.println(s.countConflicts());*/
-	Solver sol = new Solver(s);
+	System.out.println(s);
+	System.out.println(s.countConflicts());
 	Solver sol1 = new Solver(s);
-	//Solver sol2 = new Solver(s);
-	System.out.println(sol.getProblem());
-	System.out.println(sol.getProblem().countConflicts());
-	sol.simulatedAnnealing(200,2);
-	sol1.hillClimb(1000);
-	//sol2.genetic();
-	System.out.println(sol.getSolution());
-	System.out.println(sol.getSolution().countConflicts());
+
+	System.out.println(sol1.getProblem());
+	System.out.println(sol1.getProblem().countConflicts());
+	sol1.simulatedAnnealing(1000,0.99,10);
+	//sol1.hillClimb(1000);
+
+	System.out.println("//////////SOLUTION//////////");
 	System.out.println(sol1.getSolution());
 	System.out.println(sol1.getSolution().countConflicts());
 	
