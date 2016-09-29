@@ -19,6 +19,7 @@ import view.*;
  * @author USER
  */
 public class GhostyPlanner {
+    
     public static void FileRead(ScheduleState s, String filepath) throws FileNotFoundException, IOException {
         // TODO code application logic here
         
@@ -250,6 +251,7 @@ public class GhostyPlanner {
         FileRead.close();
         }
     }
+    
     /**
      * @param args the command line arguments
      */
@@ -281,27 +283,18 @@ public class GhostyPlanner {
 
 	s.initialize();
 	System.out.println(s);
-	System.out.println(s.countConflicts());
-	Solver sol1 = new Solver(s);
-
-	System.out.println(sol1.getProblem());
-	System.out.println(sol1.getProblem().countConflicts());
-	sol1.simulatedAnnealing(20,0.999,10,0);
-	//sol1.hillClimb(1000);
-
-	System.out.println("//////////SOLUTION//////////");
-	System.out.println(sol1.getSolution());
-	System.out.println(sol1.getSolution().countConflicts());
+        System.out.println(s.countConflicts());
 	
+	Solver slv = new Solver(s);
+	slv.GeneticAlgorithm(50, 2, 2000);
+	
+	System.out.println("//////////SOLUTION//////////");
+	System.out.println(slv.getSolution());
+	System.out.println(slv.getSolution().countConflicts());
     }
     
 }
 
 /*
-        System.out.println("Initialization done");
-        MainMenu M = new MainMenu();
-        M.getJadwal(s);
-        M.setVisible(true);
-        //ScheduleView V = new ScheduleView(s);
-        //MainMenu M = new MainMenu();
+
 */

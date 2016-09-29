@@ -6,7 +6,7 @@ import java.util.Random;
 public class Solver {
     private ScheduleState problem;
     private ScheduleState solution;
-
+    
     public final double e = 2.71828;
 
     //Constructor
@@ -103,5 +103,11 @@ public class Solver {
 	while (solution.countConflicts() > 0); //STOPS when no conflicts
 	
     }
-
+    
+    
+    public void GeneticAlgorithm(int maxPop, int selectionLimit, int maxIter) {
+	GeneticHelper H = new GeneticHelper(problem, maxPop, selectionLimit, maxIter);
+	solution = new ScheduleState(H.evolution());
+    }
+    
 }

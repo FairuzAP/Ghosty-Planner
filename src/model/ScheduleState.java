@@ -110,6 +110,21 @@ public class ScheduleState {
 	}
     }
     
+    /**
+     * Reasign EVERY courses randomly
+     */
+    public void massReorder() {
+	Random r = new Random();
+	r.setSeed(System.currentTimeMillis());
+	for(Courses c : courseList) {
+	    
+	    int classID = c.allowedClass.get(r.nextInt(c.allowedClass.size()));
+	    int startDay = c.openDay.get(r.nextInt(c.openDay.size()));
+	    int startHour = c.startHour + r.nextInt(1+(c.endHour-c.startHour)-c.duration);
+	    
+	    reOrderClass(c.ID,classID,startDay,startHour);
+	}
+    }
     
     /**
      * Reassign the Course with CourseID to a bestt possible timeslot; the one 
