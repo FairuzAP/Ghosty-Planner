@@ -69,14 +69,8 @@ import java.util.Vector;
 	openDay = o;
 	
 	BookingPlan = new TreeMap<>();
-	for(int day=SENIN; day<=JUMAT; day++) {
-	    BookingPlan.put(day, new TreeMap<>());
-	    for(int i=7;i<18;i++) {
-		BookingPlan.get(day).put(i,1);
-	    }
-	}
-	
 	for(int day : openDay) {
+	    BookingPlan.put(day, new TreeMap<>());
 	    for(int i=startHour;i<endHour;i++) {
 		BookingPlan.get(day).put(i,0);
 	    }
@@ -92,18 +86,28 @@ import java.util.Vector;
 	openDay = new Vector<>(c.openDay);
 	
 	BookingPlan = new TreeMap<>();
-	for(int day=SENIN; day<=JUMAT; day++) {
+	for(int day : openDay) {
 	    BookingPlan.put(day, new TreeMap<>());
-	    for(int i=7;i<18;i++) {
+	    for(int i=startHour;i<endHour;i++) {
 		BookingPlan.get(day).put(i,c.BookingPlan.get(day).get(i));
 	    }
 	}
     }    
     
+    public boolean isOpen(int day, int startHour, int duration) {
+	boolean res = true;
+	if(!BookingPlan.containsKey(day)) res = false;
+	else {
+	    for(int i=0;i<duration;i++) {
+		if(!BookingPlan.get(day).containsKey(startHour+i)) res = false;
+	    }
+	}
+	return res;
+    }
     
     /** Increment the BookingPlan at that day, hour and duration */
     boolean orderClass(int day, int startHour, int duration) {
-	if((startHour < 7)||(startHour+duration > 18)) return false;
+	if(!isOpen(day,startHour,duration)) return false;
 	else {
 	    for(int i=startHour;i<startHour+duration;i++) {
 		BookingPlan.get(day).put(i, BookingPlan.get(day).get(i)+1);
@@ -113,7 +117,7 @@ import java.util.Vector;
     }
     /** Decrement the BookingPlan at that day, hour and duration */
     boolean removeOrder(int day, int startHour, int duration) {  
-	if((startHour < 7)||(startHour+duration > 18)) return false;
+	if(!isOpen(day,startHour,duration)) return false;
 	else {
 	    for(int i=startHour;i<startHour+duration;i++) {
 		BookingPlan.get(day).put(i, BookingPlan.get(day).get(i)-1);
@@ -136,7 +140,7 @@ import java.util.Vector;
      * on the parameter's time period
      */
     int getOrderConflict(int day, int startHour, int duration) {
-	if((startHour < 7)||(startHour+duration > 18)) return 0;
+	if(!isOpen(day,startHour,duration)) return 0;
 	else {
 	    int res = 0;
 	    for(int i=startHour;i<startHour+duration;i++) {
@@ -206,9 +210,9 @@ import java.util.Vector;
      * one Courses
      */
     int countConflicts() {
-	int res = 0;
-	for(int day=SENIN; day<=JUMAT; day++) {
-	    for(int i=7; i<18; i++) {
+	int res = 0;	
+	for(int day : openDay) {
+	    for(int i=startHour;i<endHour;i++) {
 		if(BookingPlan.get(day).get(i) > 1) {
 		    int n=BookingPlan.get(day).get(i);
 		    res+=(n*(n-1)/2);
@@ -227,9 +231,9 @@ import java.util.Vector;
 	res.append("startHour : ").append(startHour).append("; ");
 	res.append("endHour : ").append(endHour).append("\n");
 	res.append("openDay : ").append(openDay.toString()).append("\n");
-	for(int day=SENIN; day<=JUMAT; day++) {
+	for(int day : openDay) {
 	    res.append("day ").append(day).append(" : ");
-	    for(int i=7;i<18;i++) {
+	    for(int i=startHour;i<endHour;i++) {
 		res.append(BookingPlan.get(day).get(i)).append(" ");
 	    }
 	    res.append("\n");

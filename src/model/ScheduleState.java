@@ -51,11 +51,14 @@ public class ScheduleState {
     
     
     private boolean orderClass(int CourseID, int ClassID, int startDay, int startHour) {
+	if(!availableRoom.get(ClassID-1).isOpen(startDay, startHour, courseList.get(CourseID-1).duration)) return false;
+	
 	boolean res = courseList.get(CourseID-1).setClass(availableRoom.get(ClassID-1), startDay, startHour);
 	if(res) {
 	    availableRoom.get(ClassID-1).orderClass(startDay, startHour, courseList.get(CourseID-1).duration);
 	    return true;
 	} else return false;
+	
     }
     
     /** @return true if the argument is valid and the class is added, false if not */
@@ -70,7 +73,7 @@ public class ScheduleState {
     
     /** @return true if the argument is valid and the class is added, false if not */
     public boolean addCourse(String courseName, Vector<Integer> allowedClassID, int startHour, int endHour, int duration, Vector<Integer> openDayList){
-	if((courseName.isEmpty())||(startHour<6)||(endHour>18)||(startHour>endHour)||(openDayList.isEmpty())||(duration<1)||(duration>11)) 
+	if((courseName.isEmpty())||(startHour<6)||(endHour>18)||(startHour>endHour)||(openDayList.isEmpty())||(duration<1)||(duration>(endHour-startHour))) 
 	    return false;
 	else {
 	    
@@ -101,12 +104,27 @@ public class ScheduleState {
 	Random r = new Random();
 	r.setSeed(System.currentTimeMillis());
 	for(Courses c : courseList) {
+	    int classID,minEnd,maxStart;
+	    Vector<Integer> commonOpen;
+	    do {
 	    
-	    int classID = c.allowedClass.get(r.nextInt(c.allowedClass.size()));
-	    int startDay = c.openDay.get(r.nextInt(c.openDay.size()));
-	    int startHour = c.startHour + r.nextInt(1+(c.endHour-c.startHour)-c.duration);
+		classID = c.allowedClass.get(r.nextInt(c.allowedClass.size()));
+		ClassRoom selected = availableRoom.get(classID-1);
+
+		maxStart = Math.max(c.startHour, selected.startHour);
+		minEnd = Math.min(c.endHour, selected.endHour);
+		commonOpen = new Vector<>(c.openDay);
+		commonOpen.retainAll(selected.openDay);
 	    
-	    orderClass(c.ID,classID,startDay,startHour);
+	    } while ((minEnd-maxStart < c.duration)||(commonOpen.isEmpty()));
+	    
+	    int startDay = commonOpen.get(r.nextInt(commonOpen.size()));
+	    int startHour = maxStart + r.nextInt(1+(minEnd-maxStart)-c.duration);
+	    
+	    boolean bad = orderClass(c.ID,classID,startDay,startHour);
+	    if(!bad) {
+		int i = 1;
+	    }
 	}
     }
     
@@ -117,10 +135,22 @@ public class ScheduleState {
 	Random r = new Random();
 	r.setSeed(System.currentTimeMillis());
 	for(Courses c : courseList) {
+	    int classID,minEnd,maxStart;
+	    Vector<Integer> commonOpen;
+	    do {
 	    
-	    int classID = c.allowedClass.get(r.nextInt(c.allowedClass.size()));
-	    int startDay = c.openDay.get(r.nextInt(c.openDay.size()));
-	    int startHour = c.startHour + r.nextInt(1+(c.endHour-c.startHour)-c.duration);
+		classID = c.allowedClass.get(r.nextInt(c.allowedClass.size()));
+		ClassRoom selected = availableRoom.get(classID-1);
+
+		maxStart = Math.max(c.startHour, selected.startHour);
+		minEnd = Math.min(c.endHour, selected.endHour);
+		commonOpen = new Vector<>(c.openDay);
+		commonOpen.retainAll(selected.openDay);
+	    
+	    } while ((minEnd-maxStart < c.duration)||(commonOpen.isEmpty()));
+	    
+	    int startDay = commonOpen.get(r.nextInt(commonOpen.size()));
+	    int startHour = maxStart + r.nextInt(1+(minEnd-maxStart)-c.duration);
 	    
 	    reOrderClass(c.ID,classID,startDay,startHour);
 	}
@@ -142,15 +172,22 @@ public class ScheduleState {
 	Vector<Integer> bestSchedule = null;
 	
 	for(int classID : c.allowedClass) {
-
+	    
 	    ClassRoom CClass = availableRoom.get(classID-1);
+	    
+	    int maxStart = Math.max(c.startHour, CClass.startHour);
+	    int minEnd = Math.min(c.endHour, CClass.endHour);
+	    Vector<Integer> commonOpen = new Vector<>(c.openDay);
+	    commonOpen.retainAll(CClass.openDay);
+	    
+	    if ((minEnd-maxStart < c.duration)||(commonOpen.isEmpty())) {}
 	    
 	    // The vector to contain the best possible schedule placement for this
 	    // course in CClass. [0]=time,[1]=conflicts number,[2]=day
 	    Vector<Integer> bestScheduleForCClass = null;
 	    
-	    for(int day : c.openDay) {
-		Vector<Integer> temp = CClass.getBestTimeSlotDay(day, c.startHour, c.endHour, c.duration);
+	    for(int day : commonOpen) {
+		Vector<Integer> temp = CClass.getBestTimeSlotDay(day, maxStart, minEnd, c.duration);
 		if(bestScheduleForCClass == null) {
 		    bestScheduleForCClass = new Vector<>();
 		    bestScheduleForCClass.add(temp.get(0));
@@ -201,9 +238,22 @@ public class ScheduleState {
 	c.getActualCourseClass().removeOrder(c.getActualCourseDay(), c.getActualCourseTime(), c.duration);
 	
 	// Re-assign it's schedule randomly
-	int classID = c.allowedClass.get(r.nextInt(c.allowedClass.size()));
-	int startDay = c.openDay.get(r.nextInt(c.openDay.size()));
-	int startHour = c.startHour + r.nextInt(1+(c.endHour-c.startHour)-c.duration);
+	int classID,minEnd,maxStart;
+	Vector<Integer> commonOpen;
+	do {
+
+	    classID = c.allowedClass.get(r.nextInt(c.allowedClass.size()));
+	    ClassRoom selected = availableRoom.get(classID-1);
+
+	    maxStart = Math.max(c.startHour, selected.startHour);
+	    minEnd = Math.min(c.endHour, selected.endHour);
+	    commonOpen = new Vector<>(c.openDay);
+	    commonOpen.retainAll(selected.openDay);
+
+	} while ((minEnd-maxStart < c.duration)||(commonOpen.isEmpty()));
+
+	int startDay = commonOpen.get(r.nextInt(commonOpen.size()));
+	int startHour = maxStart + r.nextInt(1+(minEnd-maxStart)-c.duration);
 	s.orderClass(c.ID,classID,startDay,startHour);
 	
 	return s;
@@ -231,6 +281,8 @@ public class ScheduleState {
     
     /** Change the schedule of this class form the old one to the paramater */
     public boolean reOrderClass(int CourseID, int ClassID, int startDay, int startHour) {
+	if(!availableRoom.get(ClassID-1).isOpen(startDay, startHour, courseList.get(CourseID-1).duration)) return false;
+	
 	boolean res = courseList.get(CourseID-1).isValid(availableRoom.get(ClassID-1), startDay, startHour);
 	if(res) {
 	    Courses c = courseList.get(CourseID-1);

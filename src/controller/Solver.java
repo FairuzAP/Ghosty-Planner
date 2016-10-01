@@ -52,9 +52,9 @@ public class Solver {
 	Random rand = new Random();
 	rand.setSeed(System.currentTimeMillis());
 	
-	int goodhit=0;
-	int badhit=0;
-	int passbadhit=0;
+	int debuggood=0;
+	int debugbadhit=0;
+	int debugpassbad=0;
 	
 	int counter = 0;
 	do {
@@ -74,11 +74,11 @@ public class Solver {
 	    // count deltaE
 	    double deltaE = solution.countConflicts() - neighbor.countConflicts();
 	    
-	    if (deltaE > 0) { goodhit++;
+	    if (deltaE > 0) { debuggood++;
 	    
 		solution = new ScheduleState(neighbor);
 		
-	    } else { badhit++;
+	    } else { debugbadhit++;
 		
 		// n is a random number between 0 to 10001
 		double n = rand.nextInt(maxRand+1);
@@ -87,7 +87,7 @@ public class Solver {
 		double tempa = Math.pow(e,deltaE/T);
 		double tempb = n/maxRand;
 		
-		if (tempb <= tempa) { passbadhit++;
+		if (tempb <= tempa) { debugpassbad++;
 		
 		    solution = new ScheduleState(neighbor);
 		    
